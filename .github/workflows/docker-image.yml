@@ -1,0 +1,49 @@
+name: Push screenshot-to-code to GAR
+
+on:
+  push:
+    branches:
+      - dev
+  workflow_dispatch:
+
+env:
+  GAR_REPO: "gcp-cluster-automation"
+  GAR_FOLDER: "screenshot-to-code"
+  FRONTEND_IMAGE: "frontend"
+  BACKEND_IMAGE: "backend"
+
+jobs:
+  push-image:
+    runs-on: ubuntu-22.04
+
+    steps:
+      # Step 1: Clone Target Repository
+      - name: Clone Target Repository
+        uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      # Step 2: Authenticate with GCP
+      - name: Authenticate with GCP
+        uses: google-github-actions/setup-gcloud@v1
+        with:
+          service_account_key: ${{ secrets.GKE_SA_KEY }}
+          project_id: ${{ secrets.GKE_PROJECT }}
+
+      # Step 3: Configure Docker for Google Artifact Registry
+      - name: Configure Docker for Google Artifact Registry
+        run: gcloud --quiet auth configure-docker
+
+      # Step 4: Build and Push Frontend Image
+      - name: Build and Push Frontend Image
+        run: |
+          cd screenshot-to-code
+          docker build -t gcr.io/${{ env.GAR_REPO }}/${{ env.GAR_FOLDER }}/${{ env.FRONTEND_IMAGE }}:latest ./frontend
+          docker push gcr.io/${{ env.GAR_REPO }}/${{ env.GAR_FOLDER }}/${{ env.FRONTEND_IMAGE }}:latest
+
+      # Step 5: Build and Push Backend Image
+      - name: Build and Push Backend Image
+        run: |
+          cd screenshot-to-code
+          docker build -t gcr.io/${{ env.GAR_REPO }}/${{ env.GAR_FOLDER }}/${{ env.BACKEND_IMAGE }}:latest ./backend
+          docker push gcr.io/${{ env.GAR_REPO }}/${{ env.GAR_FOLDER }}/${{ env.BACKEND_IMAGE }}:latest
