@@ -37,13 +37,23 @@ jobs:
       # Step 4: Build and Push Frontend Image
       - name: Build and Push Frontend Image
         run: |
-          docker build -t local-frontend:v1.0.0 ./frontend
-          docker tag local-frontend:v1.0.0 gcr.io/${{ env.GAR_REPO }}/${{ env.GAR_FOLDER }}/${{ env.FRONTEND_IMAGE }}:v1.0.0
-          docker push gcr.io/${{ env.GAR_REPO }}/${{ env.GAR_FOLDER }}/${{ env.FRONTEND_IMAGE }}:v1.0.0
+          base_name="${{ env.FRONTEND_IMAGE }}"
+          tag_or_digest="v1.0.0"
+          new_image="gcr.io/${{ secrets.GKE_PROJECT }}/${{ env.GAR_REPO }}/${{ env.GAR_FOLDER }}/${base_name}:${tag_or_digest}"
+          
+          echo "Building and tagging frontend image as $new_image"
+          docker build -t local-frontend:${tag_or_digest} ./frontend
+          docker tag local-frontend:${tag_or_digest} $new_image
+          docker push $new_image
 
       # Step 5: Build and Push Backend Image
       - name: Build and Push Backend Image
         run: |
-          docker build -t local-backend:v1.0.0 ./backend
-          docker tag local-backend:v1.0.0 gcr.io/${{ env.GAR_REPO }}/${{ env.GAR_FOLDER }}/${{ env.BACKEND_IMAGE }}:v1.0.0
-          docker push gcr.io/${{ env.GAR_REPO }}/${{ env.GAR_FOLDER }}/${{ env.BACKEND_IMAGE }}:v1.0.0
+          base_name="${{ env.BACKEND_IMAGE }}"
+          tag_or_digest="v1.0.0"
+          new_image="gcr.io/${{ secrets.GKE_PROJECT }}/${{ env.GAR_REPO }}/${{ env.GAR_FOLDER }}/${base_name}:${tag_or_digest}"
+          
+          echo "Building and tagging backend image as $new_image"
+          docker build -t local-backend:${tag_or_digest} ./backend
+          docker tag local-backend:${tag_or_digest} $new_image
+          docker push $new_image
