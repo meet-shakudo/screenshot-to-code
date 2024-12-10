@@ -37,13 +37,11 @@ jobs:
       # Step 4: Build and Push Frontend Image
       - name: Build and Push Frontend Image
         run: |
-          cd screenshot-to-code
           docker build -t gcr.io/${{ env.GAR_REPO }}/${{ env.GAR_FOLDER }}/${{ env.FRONTEND_IMAGE }}:latest ./frontend
           docker push gcr.io/${{ env.GAR_REPO }}/${{ env.GAR_FOLDER }}/${{ env.FRONTEND_IMAGE }}:latest
 
       # Step 5: Build and Push Backend Image
       - name: Build and Push Backend Image
         run: |
-          cd screenshot-to-code
           docker build -t gcr.io/${{ env.GAR_REPO }}/${{ env.GAR_FOLDER }}/${{ env.BACKEND_IMAGE }}:latest ./backend
           docker push gcr.io/${{ env.GAR_REPO }}/${{ env.GAR_FOLDER }}/${{ env.BACKEND_IMAGE }}:latest
